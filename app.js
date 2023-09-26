@@ -18,6 +18,44 @@ app.get('/', (req, res) => {
     return res.status(200).json({msg: "Bem vindo a nossa API!"});
 })
 
+// Private Route
+app.get('/user/:id', checkToken, async(req, res) => {
+    const id = req.params.id;
+
+    // Checar se usuario existe
+    const user = await User.findById(id, '-password');
+
+    if(!user) {
+        return res.status(404).json({ msg: "Usuario não encontrado" });
+    }
+
+    res.status(200).json({ user });
+
+})
+
+function checkToken(req, res, next) {
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if(!token) {
+        return res.status(401).json({ msg: "Acesso Negado!" });
+    }
+
+    try {
+
+        const secret = process.env.SECRET;
+
+        jwt.verify(token, secret);
+
+        next();
+        
+    } catch (error) {
+        res.status(400).json({ msg: "Token inválido!" });
+        console.log(error);
+    }
+}
+
 // Registrar Usuario
 app.post('/auth/register', async(req, res) => {
 
