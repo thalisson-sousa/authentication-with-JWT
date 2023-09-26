@@ -6,3 +6,5 @@ Libs e Frameworks usados:
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.3"
+
+Usado banco MondoDB Atlas
