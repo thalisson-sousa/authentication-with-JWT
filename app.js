@@ -10,9 +10,12 @@ const app = express();
 // Config JSON Response
 app.use(express.json());
 
+// Models
+const User = require('./models/User');
+
 // Open Route - Public Route
 app.get('/', (req, res) => {
-    res.status(200).json({msg: "Bem vindo a nossa API!"})
+    return res.status(200).json({msg: "Bem vindo a nossa API!"});
 })
 
 // Registrar Usuario
@@ -22,9 +25,49 @@ app.post('/auth/register', async(req, res) => {
 
     // validações
     if(!name) {
-        res.status(202).json({msg: "O nome é Obrigatorio"})
+        return res.status(422).json({msg: "O nome é Obrigatorio"});
     }
+
+    if(!email) {
+        return res.status(422).json({msg: "O email é Obrigatorio"});
+    }
+
+    if(!password) {
+        return res.status(422).json({msg: "O password é Obrigatorio"});
+    }
+
+    if(password !== confirmpassword) {
+        return res.status(422).json({msg: "As senhas não conferem!"});
+    }
+
+    // Verificar se usuario existe
+    const userExist = await User.findOne({ email: email });
+
+    if (userExist) {
+        return res.status(442).json({msg: "por favor, utilize outro e-mail"});
+    } else {
+        // Criar senha
+        const salt = await bcrypt.genSalt(12);
+        const passwordHash = await bcrypt.hash(password, salt);
+    
+        // Criar Usuario
+        const user = new User({
+            name,
+            email,
+            password: passwordHash,
+        })
+    
+        try {
+            await user.save();
+            res.status(201).json({ msg: "Usuario Criado com sucesso!" });
+        } catch (error) {
+            res.status(500).json({ msg: "Houve um erro no servidor, tente novamente mais tarde!" });
+            console.log(error);
+        }
+    }
+
 });
+
 
 // Credenciais
 const dbuser = process.env.DB_USER;
