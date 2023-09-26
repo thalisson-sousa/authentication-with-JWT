@@ -8,3 +8,8 @@ Libs e Frameworks usados:
     "mongoose": "^7.5.3"
 
 Usado banco MondoDB Atlas
+
+Arquivo .env
+DB_USER=
+DB_PASS=
+SECRET=
